@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", carregarNotas);
 
 const botaoAdd = document.getElementById("addNota");
 const campoNota = document.getElementById("novaNota");
-const listaNota = document.getElementById("listaNotas")
+const listaNotas = document.getElementById("listaNotas");
 
 botaoAdd.addEventListener("click", function() {
     let textoNota = campoNota.value.trim();
@@ -23,13 +23,22 @@ function carregarNotas() {
     
     notas.forEach((nota, index) => {
         let li = document.createElement("li");
-        li.textContent = nota;
+
+        let spanTexto = document.createElement("span");
+        spanTexto.textContent = nota;
+
+        let botaoEditar = document.createElement("button");
+        botaoEditar.textContent = "Editar";
+        botaoEditar.classList.add("editar");
+        botaoEditar.onclick = () => editarNota(index, spanTexto);
 
         let botaoDeletar = document.createElement("button");
         botaoDeletar.textContent = "Apagar";
         botaoDeletar.classList.add("deletar");
         botaoDeletar.onclick = () => removerNota(index);
 
+        li.appendChild(spanTexto);
+        li.appendChild(botaoEditar);
         li.appendChild(botaoDeletar);
         listaNotas.appendChild(li);
     });
@@ -42,3 +51,27 @@ function removerNota(index) {
     carregarNotas();
 }
 
+function editarNota(index, spanTexto) {
+    let notas = JSON.parse(localStorage.getItem("notas")) || [];
+    
+    let input = document.createElement("input");
+    input.type = "text";
+    input.value = notas[index];
+    input.classList.add("input-edicao");
+
+    let botaoSalvar = document.createElement("button");
+    botaoSalvar.textContent = "Salvar";
+    botaoSalvar.classList.add("salvar");
+    botaoSalvar.onclick = () => {
+        let novoTexto = input.value.trim();
+        if (novoTexto !== "") {
+            notas[index] = novoTexto;
+            localStorage.setItem("notas", JSON.stringify(notas));
+            carregarNotas();
+        }
+    };
+
+    spanTexto.replaceWith(input);
+    let li = input.parentElement;
+    li.replaceChild(botaoSalvar, li.children[1]); 
+}
